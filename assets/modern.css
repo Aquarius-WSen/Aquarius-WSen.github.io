@@ -1,0 +1,52 @@
+/* /modern — same cream-paper/gold system as the home page, simplified.
+   Layered on top of home.css; only the differences found in that page's
+   token set are overridden here:
+     · one fewer background → the nav pill uses the lighter surface value
+     · five radii instead of ten → the larger radii are pulled in
+     · 10px and 11px micro type only → labels sit one step smaller
+*/
+
+.is-modern .pill-nav {
+  background: rgba(252, 250, 243, 0.72);
+}
+
+.is-modern .chip,
+.is-modern .card,
+.is-modern .award,
+.is-modern .contact-row,
+.is-modern .service,
+.is-modern .qr,
+.is-modern .follow {
+  border-radius: 5px;
+}
+
+.is-modern .big-cta {
+  border-radius: 5px;
+}
+
+.is-modern .pill-nav__item {
+  border-radius: 3px;
+}
+
+.is-modern .hero__glyph {
+  opacity: 0.75;
+}
+
+.is-modern .portrait__frame {
+  border-radius: 4px;
+}
+
+/* this page ships a slightly quieter hero: the portrait lens is not drawn */
+.is-modern .portrait__lens {
+  display: none;
+}
+
+.is-modern .panel h2 {
+  font-size: 30px;
+}
+
+@media (max-width: 760px) {
+  .is-modern .panel h2 {
+    font-size: 24px;
+  }
+}

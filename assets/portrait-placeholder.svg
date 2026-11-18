@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1023" height="1537" viewBox="0 0 1023 1537" role="img" aria-label="Portrait placeholder">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#eae7e0"/><stop offset="0.5" stop-color="#dcd7ce"/><stop offset="1" stop-color="#c8c1b3"/></linearGradient>
+<linearGradient id="fig" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#8e867b"/><stop offset="1" stop-color="#625c54"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.26" r="0.62"><stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1023" height="1537" fill="url(#bg)"/>
+<rect width="1023" height="1537" fill="url(#glow)"/>
+<g fill="none" stroke="#9e332d" stroke-opacity="0.13" stroke-width="1.5"><circle cx="511" cy="640" r="332"/><circle cx="511" cy="640" r="412"/></g>
+<circle cx="511" cy="596" r="186" fill="url(#fig)"/>
+<path d="M118 1537C118 1188 294 1000 511 1000s393 188 393 537Z" fill="url(#fig)"/>
+<g fill="none" stroke="#f1f0ec" stroke-opacity="0.45" stroke-width="2">
+<path d="M40 40h96M40 40v96"/><path d="M983 40h-96M983 40v96"/><path d="M40 1497h96M40 1497v-96"/><path d="M983 1497h-96M983 1497v-96"/>
+</g>
+</svg>

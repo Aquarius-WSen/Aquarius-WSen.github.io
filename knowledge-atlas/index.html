@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金融及证券法律业务知识星云 · 王森律师</title>
+<!-- 字体已本地化（2026-11-16）：改为本地 fonts.css（子目录故用 ../） -->
+<link rel="stylesheet" href="../assets/fonts.css?v=1">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./lib/three.module.js",
+    "three/addons/": "./lib/addons/"
+  }
+}
+</script>
+<style>
+  :root {
+    --panel-bg: rgba(10, 12, 26, 0.72);
+    --panel-border: rgba(255, 255, 255, 0.09);
+    --text-main: #e8eaf6;
+    --text-dim: #9aa0c0;
+    --accent: #8ea2ff;
+    --gold: #ffc46b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #020208; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+    color: var(--text-main);
+  }
+  canvas { display: block; }
+
+  .panel {
+    position: absolute;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 32px rgba(0,0,0,.45);
+  }
+
+  /* ── 顶栏：星云名称最左 + 视角标签页居中 + 功能按钮最右（对标金莉珊站） ── */
+  #topbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 54px; z-index: 20;
+    display: flex; align-items: center; gap: 18px; padding: 0 20px;
+    background: rgba(6, 8, 18, 0.80); border-bottom: 1px solid var(--panel-border);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  }
+  .tb-title { display: flex; align-items: center; gap: 10px; font-family: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif; font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; margin-right: auto; white-space: nowrap; }
+  /* v12：黑洞图标（对标王律参考图：黑球+横向吸积盘+上下光弧） */
+  .tb-logo { width: 30px; height: 30px; flex: none; filter: drop-shadow(0 0 9px rgba(255,196,120,.5)) drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
+  #tabs { display: flex; gap: 4px; padding: 5px; background: rgba(255,255,255,.05);
+    border-radius: 10px; border: 1px solid var(--panel-border); }
+  #tabs button {
+    border: none; background: transparent; color: var(--text-dim);
+    font-size: 12.5px; padding: 6px 13px; border-radius: 8px; cursor: pointer;
+    letter-spacing: 1px; transition: all .2s;
+  }
+  #tabs button:hover { color: var(--text-main); background: rgba(255,255,255,.06); }
+  #tabs button.active { color: #fff; background: rgba(142,162,255,.22); }
+  .tb-actions { display: flex; gap: 8px; }
+  .tb-actions button {
+    border: 1px solid var(--panel-border); background: rgba(255,255,255,.05);
+    color: var(--text-dim); font-size: 12px; padding: 6px 13px; border-radius: 9px;
+    cursor: pointer; letter-spacing: 1px; transition: all .2s;
+  }
+  .tb-actions button:hover, .tb-actions button.active { color: #fff; background: rgba(142,162,255,.22); border-color: rgba(142,162,255,.4); }
+
+  /* ── 星群目录：左侧（v12：默认收起；高度固定与右侧抽屉对齐 top66→bottom54；z15 被标签正确遮挡关系反转） ── */
+  #index-panel { top: 66px; left: 16px; bottom: 54px; width: 322px; z-index: 15; display: flex; flex-direction: column; }
+  #index-panel.hidden { display: none; }
+  #btn-index-open {
+    position: absolute; left: 16px; bottom: 64px; z-index: 19;
+    border: 1px solid var(--panel-border); background: var(--panel-bg);
+    color: var(--text-dim); font-size: 12px; padding: 8px 15px; border-radius: 10px;
+    cursor: pointer; letter-spacing: 2px; backdrop-filter: blur(14px);
+    transition: all .2s;
+  }
+  #btn-index-open:hover { color: #fff; background: rgba(142,162,255,.22); border-color: rgba(142,162,255,.4); }
+  #index-panel header { padding: 15px 18px 11px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); }
+  #index-panel header h2 { font-size: 14.5px; letter-spacing: 3px; }
+  #index-close { border: none; background: none; color: var(--text-dim); font-size: 15px; cursor: pointer; }
+  #index-close:hover { color: #fff; }
+  #search-wrap { padding: 12px 14px 10px; }
+  #search-input {
+    width: 100%; background: rgba(255,255,255,.06); border: 1px solid var(--panel-border);
+    border-radius: 9px; color: var(--text-main); font-size: 12.5px; padding: 9px 13px; outline: none;
+  }
+  #search-input:focus { border-color: rgba(142,162,255,.5); }
+  #search-input::placeholder { color: #5a5f80; }
+  #index-list { overflow-y: auto; padding: 4px 10px 14px; flex: 1; }
+  #index-list::-webkit-scrollbar { width: 4px; }
+  #index-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 2px; }
+  .idx-universe { display: block; padding: 11px 13px; border-radius: 10px;
+    background: rgba(255,255,255,.05); margin: 4px 0 6px; cursor: pointer; transition: background .15s; }
+  .idx-universe:hover { background: rgba(142,162,255,.12); }
+  /* v12：UNIVERSE-Nebula 横排小字，名字上方左对齐；点框重置起始视角 */
+  .idx-universe .uni-tag { font-size: 8px; letter-spacing: 2.5px; color: #7f89ad; margin-bottom: 4px; }
+  .idx-universe .name { font-size: 13.5px; letter-spacing: 2px; }
+  .idx-group { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 10px;
+    background: rgba(255,255,255,.04); margin: 4px 0; cursor: pointer; transition: background .15s; }
+  .idx-group:hover { background: rgba(255,255,255,.08); }
+  .idx-group.open { background: rgba(255,255,255,.07); }
+  .idx-group .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; box-shadow: 0 0 8px currentColor; }
+  .idx-group .name { font-size: 12.5px; letter-spacing: 1px; flex: 1; color: var(--text-main); }
+  .idx-group .count { font-size: 11px; color: var(--text-dim); }
+  .idx-group .arrow { font-size: 10px; color: var(--text-dim); transition: transform .2s; }
+  .idx-group.open .arrow { transform: rotate(90deg); }
+  .idx-children { display: none; padding: 2px 0 4px 8px; }
+  .idx-children.open { display: block; }
+  .idx-neb { display: flex; align-items: center; gap: 8px; padding: 8px 10px; margin: 2px 0 2px 10px;
+    border-radius: 8px; cursor: pointer; transition: background .15s; }
+  .idx-neb:hover { background: rgba(142,162,255,.10); }
+  .idx-neb .code { font-size: 9.5px; color: #7f89ad; letter-spacing: 1px; width: 26px; flex: none; }
+  .idx-neb .name { font-size: 12.5px; color: var(--text-main); flex: 1; }
+  .idx-neb .count { font-size: 10.5px; color: var(--text-dim); }
+  .idx-neb .arrow { font-size: 10px; color: var(--text-dim); transition: transform .2s; }
+  .idx-neb.open .arrow { transform: rotate(90deg); }
+  .idx-nodes { display: none; padding: 0 0 4px 22px; }
+  .idx-nodes.open { display: block; }
+  .idx-child { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+  .idx-child:hover { background: rgba(142,162,255,.13); }
+  .idx-child .code { font-size: 9.5px; color: #7f89ad; letter-spacing: 1px; width: 38px; flex: none; }
+  .idx-child .name { font-size: 12px; color: var(--text-main); flex: 1; }
+  .idx-child .arrow { font-size: 9px; color: var(--text-dim); }
+  .idx-child.has-card .name::after { content: "◈"; color: var(--gold); margin-left: 6px; font-size: 9px; }
+  .idx-unexplored { margin: 10px 4px 4px; padding: 11px 13px; border-radius: 10px;
+    background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.10); }
+  .idx-unexplored .name { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+  .idx-unexplored .note { font-size: 10.5px; color: #6a6f8e; margin-top: 5px; line-height: 1.7; }
+
+  /* ── 详情抽屉（右侧，点星弹出，对标 NODE LENS；z-index 15 压过星云标签 5） ── */
+  #drawer {
+    top: 66px; right: 16px; bottom: 54px; width: 380px; z-index: 15;
+    transform: translateX(430px); transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    display: flex; flex-direction: column;
+  }
+  #drawer.open { transform: translateX(0); }
+  #drawer header { padding: 16px 18px 10px; border-bottom: 1px solid var(--panel-border); position: relative; }
+  #drawer-tag { font-size: 9px; letter-spacing: 2.5px; color: var(--gold); opacity: .85; margin-bottom: 6px; }
+  #drawer header h2 { font-size: 16px; letter-spacing: 1px; padding-right: 28px; }
+  #drawer-path { font-size: 11px; color: var(--text-dim); margin-top: 6px; letter-spacing: 1px; }
+  #drawer-anchor { font-size: 11px; color: var(--gold); margin-top: 4px; opacity: .85; }
+  #drawer-close {
+    position: absolute; top: 14px; right: 14px; border: none; background: none;
+    color: var(--text-dim); font-size: 17px; cursor: pointer;
+  }
+  #drawer-close:hover { color: #fff; }
+  #drawer-body { overflow-y: auto; padding: 12px 18px 18px; flex: 1; }
+  #drawer-body::-webkit-scrollbar { width: 4px; }
+  #drawer-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 2px; }
+  .drawer-section { margin-bottom: 14px; }
+  .drawer-section h3 { font-size: 12px; color: var(--accent); letter-spacing: 2px; margin-bottom: 7px; }
+  .leaf-item { font-size: 12.5px; color: var(--text-main); padding: 5px 0 5px 14px; position: relative; opacity: .92; }
+  .leaf-item::before { content: "·"; position: absolute; left: 2px; color: var(--gold); }
+  .card-field { margin-bottom: 9px; }
+  .card-field .fname {
+    font-size: 11px; color: var(--gold); letter-spacing: 1px; margin-bottom: 3px;
+  }
+  .card-field .fname::before { content: "◈ "; font-size: 9px; }
+  .card-field .fval { font-size: 12.5px; line-height: 1.75; color: var(--text-main); opacity: .9; }
+  .no-card { font-size: 12px; color: var(--text-dim); padding: 8px 0; }
+  .drawer-links { font-size: 11.5px; color: var(--text-dim); line-height: 1.9; }
+  .drawer-links b { color: var(--accent); font-weight: 500; }
+
+  /* ── 底部信息栏 ── */
+  #bottombar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 40px; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+    background: rgba(6, 8, 18, 0.80); border-top: 1px solid var(--panel-border);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    font-size: 11px; color: var(--text-dim); letter-spacing: 1px;
+  }
+  #bottombar b { color: var(--accent); font-weight: 500; }
+  #bottombar .bb-right { color: #6a6f8e; }
+
+  /* 悬停提示 */
+  #tooltip {
+    position: absolute; pointer-events: none; padding: 7px 12px; border-radius: 8px;
+    background: rgba(8,10,22,.88); border: 1px solid var(--panel-border);
+    font-size: 12px; letter-spacing: 1px; display: none; z-index: 30; max-width: 300px;
+  }
+  #tooltip .tt-sub { font-size: 10.5px; color: var(--text-dim); margin-top: 2px; }
+
+  /* 星云名 3D 标注（v11：z-index 5——低于抽屉 15/顶栏 20，侧边栏弹出或标签转到 UI 区域时被正确遮挡） */
+  .nebula-label {
+    position: absolute; pointer-events: none; transform: translate(-50%, -50%);
+    font-size: 15px; letter-spacing: 4px; color: rgba(232,234,246,.88); z-index: 5;
+    text-shadow: 0 0 6px rgba(2,2,10,.9), 0 0 14px rgba(2,2,10,.7), 0 0 14px rgba(142,162,255,.45); white-space: nowrap;
+  }
+
+  /* v30：三角=仅折叠（指针手型、独立触发）；行其余区域=运镜+折叠 */
+  .idx-group .arrow, .idx-neb .arrow { cursor: pointer; }
+
+  @media (max-width: 760px) {
+    #index-panel { display: none; }
+    #tabs { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div id="topbar">
+    <div class="tb-title">
+      <svg class="tb-logo" viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <linearGradient id="tbStarBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff7e0"/>
+            <stop offset="0.42" stop-color="#e3cd93"/>
+            <stop offset="0.78" stop-color="#b08d4f"/>
+            <stop offset="1" stop-color="#7a6234"/>
+          </linearGradient>
+          <linearGradient id="tbStarHi" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="tbStarBlue" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f5ead0"/>
+            <stop offset="0.45" stop-color="#d8c08a"/>
+            <stop offset="0.8" stop-color="#9a8348"/>
+            <stop offset="1" stop-color="#5f5230"/>
+          </linearGradient>
+          <linearGradient id="tbStarBlueHi" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- v23：双子星——主星金橙（大·左下）+ 伴星冰蓝（小·右上错开），各带厚度阴影与受光渐变 -->
+        <path d="M10.4 4.6 C11 9 13.4 11.5 18.4 12 C13.4 12.5 11 15 10.4 19.4 C9.8 15 7.4 12.5 2.4 12 C7.4 11.5 9.8 9 10.4 4.6 Z"
+              fill="#5e3517" opacity="0.9" transform="translate(0.8 1.1)"/>
+        <path d="M10.4 4.6 C11 9 13.4 11.5 18.4 12 C13.4 12.5 11 15 10.4 19.4 C9.8 15 7.4 12.5 2.4 12 C7.4 11.5 9.8 9 10.4 4.6 Z"
+              fill="url(#tbStarBody)"/>
+        <path d="M10.4 4.6 C11 9 13.4 11.5 18.4 12 L10.4 12 Z" fill="url(#tbStarHi)"/>
+        <path d="M18.6 2.4 C18.95 5.2 20.6 6.85 23.6 7.2 C20.6 7.55 18.95 9.2 18.6 12 C18.25 9.2 16.6 7.55 13.6 7.2 C16.6 6.85 18.25 5.2 18.6 2.4 Z"
+              fill="#3f3418" opacity="0.9" transform="translate(0.5 0.6)"/>
+        <path d="M18.6 2.4 C18.95 5.2 20.6 6.85 23.6 7.2 C20.6 7.55 18.95 9.2 18.6 12 C18.25 9.2 16.6 7.55 13.6 7.2 C16.6 6.85 18.25 5.2 18.6 2.4 Z"
+              fill="url(#tbStarBlue)"/>
+        <path d="M18.6 2.4 C18.95 5.2 20.6 6.85 23.6 7.2 L18.6 7.2 Z" fill="url(#tbStarBlueHi)"/>
+      </svg>
+      金融及证券法律业务知识星云
+    </div>
+    <div id="tabs">
+      <button data-tab="all" class="active">全图</button>
+      <button data-tab="A1">债券</button>
+      <button data-tab="A2">重组</button>
+      <button data-tab="B1">私募</button>
+      <button data-tab="B2">ABS</button>
+      <button data-tab="C1">并购</button>
+    </div>
+    <div class="tb-actions">
+      <button id="btn-drift">暂停</button>
+      <button id="btn-fs">全屏</button>
+      <button onclick="location.href='../'">返回</button>
+    </div>
+  </div>
+
+  <button id="btn-index-open">目录</button>
+  <div id="index-panel" class="panel hidden">
+    <header>
+      <h2>星群目录</h2>
+      <button id="index-close">✕</button>
+    </header>
+    <div id="search-wrap">
+      <input id="search-input" type="text" placeholder="搜索卡号或标题（如：备案、对赌、要约）">
+    </div>
+    <div id="index-list"></div>
+  </div>
+
+  <div id="drawer" class="panel">
+    <header>
+      <div id="drawer-tag"></div>
+      <h2 id="drawer-title">节点</h2>
+      <div id="drawer-path"></div>
+      <div id="drawer-anchor"></div>
+      <button id="drawer-close">✕</button>
+    </header>
+    <div id="drawer-body"></div>
+  </div>
+
+  <div id="bottombar">
+    <div class="bb-left">三大星座 · 七系星群</div>
+    <div class="bb-right">UNIVERSE-Nebula · <span id="st-fps">60</span> fps</div>
+  </div>
+
+  <div id="tooltip"><div class="tt-name"></div><div class="tt-sub"></div></div>
+
+  <script type="module" src="./engine.js?v=30"></script>
+</body>
+</html>

@@ -1,0 +1,980 @@
+/* ===========================================================================
+   atlas-ui.css — the presentation layer for the labour-dispute atlas page.
+
+   Why this file exists
+   --------------------
+   atlas.css (loaded just before this one) supplies the colour tokens and the
+   base body type, and it styles .shell / .directory / .panels / .site-header
+   and the article-like blocks. It has no rule at all for the classes this page
+   actually uses: .stage, .node, .chrome, .top, .brand, .switch, .tools, .views,
+   .toolbar, .foot, .drawer, .scrim, .questions, .lens__*, .mini, .group, .kid,
+   .row, .search, .is-on and .is-open.
+
+   So the page ships its markup styled by nothing but the browser default.
+   This file puts that existing markup on screen. It adds no content and
+   renames nothing.
+
+   Where the numbers come from
+   ---------------------------
+   1. The shipped markup in src/labor-dispute-atlas/index.html, read line by
+      line: element order, class names, the ten link arcs, the seven node
+      labels and counts, the footer's five children, the drawer trees.
+   2. A measurement sheet reconstructed from the live page. Values the
+      original stylesheet could not be parsed for were marked "推算"
+      (inferred) there and are marked INFERRED here.
+
+   All coordinates, sizes and colours are observed from one of those two
+   sources unless a comment says otherwise. Nothing here is guessed silently.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. Tokens this file needs that atlas.css does not define.
+
+   atlas.css already owns the palette: --void, --nav-bg, --glass-1..4,
+   --t-dim, --t-soft, --t-mid, --t-lit, --t-pale, --t-bright, --line-1,
+   --line-2, --sans, --mono, --ease. Re-declaring those would make two
+   sources of truth, so only additive names are declared below. Several are
+   aliases of an existing atlas.css token, kept separate because the
+   measurement sheet names them separately and future edits may diverge.
+   --------------------------------------------------------------------------- */
+:root {
+  /* text inks (the measurement sheet's names; atlas.css has the same colours
+     under --t-* names) */
+  --ink: #d9e9ec;
+  --h2: #edf7fa;
+  --p-ink: #d8e8eb;
+  --h3: #dcebed;
+  --mute: #9cb6bf;
+  --mute-2: #8db2bd;
+  --dim: #6f8f9a;
+  --sel-ink: #e9f5f8;
+  --input-ink: #e4f1f4;
+  --input-icon: #8aa9b3;
+  --pill-ink: #c7dce1;
+  --btn-ink: #9bb5bf;
+  --svg-ink: #92c5d0;
+  --close-ink: #9bb4bd;
+
+  /* surfaces. Each is the same colour as an atlas.css --glass-* token; the
+     separate name records which measured component uses it. */
+  --panel: #0f1c24a6;                 /* = --glass-1, the drawer glass */
+  --row: rgba(32, 59, 70, 0.18);      /* = --glass-2, group head / pressed */
+  --row-sel: rgba(76, 125, 138, 0.20);/* = --glass-3 @ .20, selected row */
+  --pill-bg: rgba(7, 22, 29, 0.70);   /* bottom-left pills */
+  --fbtn-bg: rgba(23, 42, 51, 0.50);  /* footer button */
+  --hair: rgba(146, 197, 208, 0.14);  /* = --line-1, hairlines */
+
+  --rail: 25px;                       /* measured page gutter, 1440 */
+}
+
+/* ---------------------------------------------------------------------------
+   2. The stage: a fixed-size sky with a 1600 x 900 map floating over it.
+
+   Geometry, all observed:
+     .stage__sky     bleeds 12 px past the stage on every side
+                     (left:-12px; top:-12px; +24px both ways)
+     .stage__map     a 1600 x 900 canvas centred on the stage. atlas.js owns
+                     its transform: translate(calc(-50% + dx), calc(-50% + dy))
+                     scale(...), with a base scale of 0.62 / 0.86 / 1.
+                     So this file must NOT set a transform that would fight it;
+                     the translate(-50%,-50%) below is only the no-JS resting
+                     place and is replaced the moment the script runs.
+     .stage__links   the same 1600 x 900 canvas, so the ten arcs land exactly
+                     on the seven node coordinates.
+
+   .stage is position:absolute rather than position:fixed on purpose: a fixed
+   element opens its own stacking context, which would trap the map's z-index
+   below .chrome. Absolute leaves the map free to paint above the chrome and
+   the seven node buttons clickable. Because .chrome is exactly one viewport
+   tall, inset:0 covers the viewport.
+   --------------------------------------------------------------------------- */
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;   /* sky and arcs never swallow a click */
+}
+
+.stage__sky {
+  position: absolute;
+  left: -12px;
+  top: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  pointer-events: none;
+}
+
+.stage__sky svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.stage__map {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1600px;
+  height: 900px;
+  transform: translate(-50%, -50%);   /* fallback only; atlas.js overwrites */
+  transform-origin: 50% 50%;
+  pointer-events: none;               /* only the nodes are clickable */
+  z-index: 2;
+}
+
+.stage__links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  /* INFERRED: the draft's miniature of this graph drew its arcs solid-stroked
+     at 1 px in #4f7e8d at .45 / .35 opacity. The live arcs were never
+     captured, so the same family of values is used, slightly softer. */
+  stroke: rgba(79, 126, 141, 0.42);
+  stroke-width: 1;
+}
+
+/* The seven nodes. Coordinates observed: they are the endpoints of the ten
+   hand-written arcs in the markup, so the arcs terminate exactly on them.
+
+   INFERRED: which cluster owns which point. The hub (four arcs, first in
+   document order) is certainly 468,296; the other six are assigned in
+   document order along the arc chain. A swap among them is possible and would
+   only change the labels' placement, never the graph. */
+.node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--mute);
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  /* the dot is the point the arcs meet, so shift the box by half a dot */
+  transform: translate(-4.5px, -50%);
+  transition: color 0.2s var(--ease);
+}
+
+.node:hover,
+.node:focus-visible {
+  color: var(--sel-ink);
+}
+
+.node__dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(146, 197, 208, 0.10);
+}
+
+.node__label {
+  letter-spacing: 0.01em;
+}
+
+.node__count {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--dim);
+}
+
+/* positions — observed from the arc endpoints */
+.node--relation { left: 468px;  top: 296px; }
+.node--contract { left: 772px;  top: 178px; }
+.node--wage     { left: 1094px; top: 302px; }
+.node--medical  { left: 976px;  top: 546px; }
+.node--exit     { left: 1188px; top: 706px; }
+.node--ring     { left: 372px;  top: 724px; }
+.node--lens     { left: 636px;  top: 626px; }
+
+/* Dot colours. INFERRED: taken from the seven cluster dots of the drawer's
+   miniature of this same graph, in the order it lists them. Two colours
+   repeat in that list, so two clusters share a colour. */
+.node--relation .node__dot { background: #70d8d3; }
+.node--contract .node__dot { background: #82a7ff; }
+.node--wage     .node__dot { background: #ffc36a; }
+.node--medical  .node__dot { background: #d990e8; }
+.node--exit     .node__dot { background: #ff8876; }
+.node--ring     .node__dot { background: #82a7ff; }
+.node--lens     .node__dot { background: #70d8d3; }
+
+/* ---------------------------------------------------------------------------
+   3. The chrome: the layer the person actually reads and clicks.
+
+   .foot is the last child of <main class="chrome"> but carries
+   role="contentinfo". It therefore has to be positioned against the chrome,
+   not the viewport — pinning it with position:fixed would float it over the
+   content, and moving the element would change the landmark tree.
+   --------------------------------------------------------------------------- */
+.chrome {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  padding-bottom: 59px;   /* room for the pinned footer */
+}
+
+.top {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 var(--rail);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--mute-2);
+  white-space: nowrap;
+}
+
+/* A neutral ringed dot in place of the original's brand mark. */
+.brand__mark {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border: 1px solid rgba(146, 197, 208, 0.45);
+  border-radius: 50%;
+}
+
+.brand__mark::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: rgba(146, 197, 208, 0.30);
+}
+
+/* Two-tab view switch, centre of the header. The count sits in a <b>. */
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--row);
+}
+
+.switch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  color: var(--mute);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.switch__btn b {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--dim);
+}
+
+.switch__btn[aria-selected="true"] {
+  color: var(--pill-ink);
+  background: var(--row);
+}
+
+.switch__btn[aria-selected="true"] b {
+  color: var(--mute-2);
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.tools__btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--svg-ink);
+  cursor: pointer;
+  transition: background 0.2s var(--ease);
+}
+
+.tools__btn:hover {
+  background: var(--row);
+}
+
+/* ---------------------------------------------------------------------------
+   4. The four view buttons — the page's only navigation landmark.
+
+   Measured 296 x 42 at y86: padding 4, gap 3, a 999 radius glass pill over
+   the star field. Only the first button carries a <small> count, so nothing
+   here may reserve a fixed column count; flex sizes each button on its own.
+   --------------------------------------------------------------------------- */
+.views {
+  position: absolute;
+  left: var(--rail);
+  top: 86px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 42px;
+  padding: 4px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  z-index: 3;
+}
+
+.views::-webkit-scrollbar {
+  display: none;
+}
+
+.views__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  color: var(--mute);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.views__btn small {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+}
+
+.views__btn[aria-pressed="true"],
+.views__btn.is-on {
+  color: var(--pill-ink);
+  background: var(--row);
+}
+
+.views__btn[aria-pressed="true"] small,
+.views__btn.is-on small {
+  color: var(--mute-2);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(146, 197, 208, 0.10);
+  border-radius: 999px;
+  background: var(--pill-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font: inherit;
+  font-size: 11px;
+  color: var(--pill-ink);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.pill:hover {
+  color: var(--sel-ink);
+  border-color: rgba(146, 197, 208, 0.26);
+}
+
+.pill[aria-expanded="true"] {
+  color: var(--sel-ink);
+  border-color: rgba(146, 197, 208, 0.30);
+}
+
+.pill svg {
+  flex: none;
+}
+
+/* ---------------------------------------------------------------------------
+   6. Footer. Measured 59 px tall at 1440 (55 at <=800), rail 25 (12), gap 14,
+   one flex row with the button pushed to the right edge. The capture's
+   "2 per row" reading is a wrap artefact of this single row.
+   --------------------------------------------------------------------------- */
+.foot {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 59px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 var(--rail);
+  border-top: 1px solid rgba(146, 197, 208, 0.09);
+  background: linear-gradient(180deg, rgba(2, 5, 10, 0), rgba(2, 5, 10, 0.72) 60%);
+  z-index: 3;
+}
+
+.foot__counts,
+.foot__hint {
+  font-size: 10px;
+  color: var(--mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.foot__right {
+  display: flex;
+  margin-left: auto;
+  flex: none;
+}
+
+.foot__btn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(146, 197, 208, 0.12);
+  border-radius: 5px;
+  background: var(--fbtn-bg);
+  font: inherit;
+  font-size: 10px;
+  color: var(--btn-ink);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.foot__btn:hover {
+  color: var(--sel-ink);
+  border-color: rgba(146, 197, 208, 0.26);
+}
+
+/* ---------------------------------------------------------------------------
+   7. The two drawers and their scrim.
+
+   Both <aside> elements are direct children of <body>, so position:fixed is
+   clean. Measured: left 300 px from -102 %, right 310 px from +102 %, .46 s
+   on --ease, over a 46 %-black blurred scrim that fades in over .42 s.
+   atlas.js toggles .is-open on each aside and .is-drawer on <body>; these are
+   the rules it was written against.
+   --------------------------------------------------------------------------- */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  background: rgba(2, 5, 10, 0.46);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.42s var(--ease);
+}
+
+body.is-drawer {
+  overflow: hidden;
+}
+
+body.is-drawer .scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--panel);
+  backdrop-filter: blur(24px) saturate(1.1);
+  -webkit-backdrop-filter: blur(24px) saturate(1.1);
+  transition: transform 0.46s var(--ease);
+  will-change: transform;
+}
+
+.drawer--left {
+  left: 0;
+  width: 300px;
+  padding: 0 6px 28px 16px;
+  border-right: 1px solid var(--hair);
+  transform: translate3d(-102%, 0, 0);
+}
+
+.drawer--right {
+  right: 0;
+  width: 310px;
+  padding: 0 16px 40px 18px;
+  border-left: 1px solid var(--hair);
+  transform: translate3d(102%, 0, 0);
+}
+
+.drawer.is-open {
+  transform: none;
+}
+
+.drawer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.drawer::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: rgba(146, 197, 208, 0.20);
+}
+
+/* Panel top: eyebrow, title, close. Measured 84 px down (72 px header + 12). */
+.drawer__eyebrow {
+  flex: none;
+  padding-top: 84px;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.drawer__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.drawer__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 550;
+  line-height: 1.32;
+  color: var(--h2);
+}
+
+.iconbtn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--close-ink);
+  cursor: pointer;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.iconbtn:hover {
+  color: var(--sel-ink);
+  background: var(--row);
+}
+
+.iconbtn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* ---------------------------------------------------------------------------
+   8. Drawer search — an underline, not a box. Measured 256 x 18: 40 px above,
+   9 px below the rule, rule at .13 alpha (.34 on focus-within).
+   atlas.js reads this input (§7): it highlights matching rows and never hides or filters anything.
+   --------------------------------------------------------------------------- */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin: 40px 0 0;
+  padding-bottom: 9px;
+  border-bottom: 1px solid rgba(146, 197, 208, 0.13);
+  color: var(--input-icon);
+  transition: border-color 0.2s var(--ease);
+}
+
+.search:focus-within {
+  border-bottom-color: rgba(146, 197, 208, 0.34);
+}
+
+.search svg {
+  flex: none;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  color: var(--input-ink);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.search input::placeholder {
+  color: rgba(138, 169, 179, 0.72);
+}
+
+.search input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ---------------------------------------------------------------------------
+   9. Rows. The class .row carries two different things, so they are styled
+   apart and never share a height:
+
+     .row.is-selected   the UNIVERSE-ROOT row — 38 px, filled, with a count
+     .group > .row      a cluster header — 35 px, and only the open one glows.
+                        The open one has no count at all, so the layout must
+                        work with two children as well as three.
+   --------------------------------------------------------------------------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+}
+
+.row code {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row__count {
+  margin-left: auto;
+  flex: none;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+}
+
+.row__chev {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--svg-ink);
+  transition: transform 0.3s var(--ease);
+}
+
+.row__chev svg {
+  display: block;
+}
+
+/* the shipped chevron points right, so opening it turns it a quarter turn */
+.row[aria-expanded="true"] .row__chev {
+  transform: rotate(90deg);
+}
+
+.row.is-selected {
+  height: 38px;
+  margin-top: 12px;
+  padding: 0 8px;
+  border-radius: 3px;
+  background: var(--row-sel);
+  font-size: 11px;
+  color: var(--sel-ink);
+}
+
+.row.is-selected code {
+  color: var(--sel-ink);
+}
+
+/* ---------------------------------------------------------------------------
+   10. The drawer's miniature of the whole sky (300 x 412 viewBox) and the
+   seven cluster groups below it.
+   --------------------------------------------------------------------------- */
+.mini {
+  flex: none;
+  margin-top: 10px;
+  padding: 6px 6px 8px;
+  border: 1px solid rgba(146, 197, 208, 0.08);
+  border-radius: 4px;
+  background: rgba(15, 28, 36, 0.35);
+}
+
+.mini__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mini__foot {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+}
+
+.group {
+  flex: none;
+  margin-top: 7px;
+}
+
+.mini + .group {
+  margin-top: 14px;
+}
+
+.group > .row {
+  width: 100%;
+  height: 35px;
+  padding: 0 8px;
+  border-radius: 3px;
+  background: var(--row);
+  font-size: 12px;
+  color: var(--mute-2);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.group > .row:hover {
+  background: rgba(32, 59, 70, 0.34);
+  color: var(--ink);
+}
+
+/* INFERRED: the reconstructed sheet gave the open cluster header a
+   box-shadow:0 0 9px rgb(214,233,237). At full strength that reads as a hard
+   halo on a near-black panel, so it is kept at low alpha and only on the open
+   header — which is the only one that can be open. */
+.group > .row[aria-expanded="true"] {
+  box-shadow: 0 0 9px rgba(214, 233, 237, 0.10);
+}
+
+.group > .row > span:not([class]) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Child rows: measured 31 px tall, indented 18 px, one per line — the same
+   shape as every other row in this drawer, not a three-up grid. */
+.group__kids {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 4px;
+  padding-left: 18px;
+}
+
+.kid {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 31px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--mute);
+}
+
+.kid i {
+  width: 4px;
+  height: 4px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(146, 197, 208, 0.55);
+}
+
+.kid code {
+  flex: none;
+  min-width: 16px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--dim);
+}
+
+.kid span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   11. Right drawer (node detail). Measured: kicker mono 10 / .20em, body copy
+   13 px at 1.72 line-height, 22 px above it; FAQ is a hairline single-column
+   list of two rows, not an accordion.
+   --------------------------------------------------------------------------- */
+.lens__kicker {
+  flex: none;
+  margin: 22px 0 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.lens__desc {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.72;
+  color: var(--p-ink);
+}
+
+.questions {
+  margin-top: 30px;
+}
+
+.questions h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  color: var(--h3);
+}
+
+.questions ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+
+.questions li {
+  padding: 9px 0;
+  border-top: 1px solid rgba(146, 197, 208, 0.10);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+
+/* ---------------------------------------------------------------------------
+   12. Narrower screens.
+
+   Measured breakpoints: 980, 800, 720, 420.
+     980  atlas.js drops the map's base scale to 0.86
+     800  rail 12, header 64, gap 8, drawer top pad 76, footer 55, tools 79
+     720  the switch's counts are dropped so the header stays one row
+     420  left drawer widens to 310, toolbar gap 10
+   INFERRED: the small-screen offset of the view pill (82 px) and hiding the
+   two-tab switch under 560 px, which is the only way the three header groups
+   fit on one row at 390 px. Disclosed rather than guessed silently.
+   --------------------------------------------------------------------------- */
+@media (max-width: 800px) {
+  :root {
+    --rail: 12px;
+  }
+
+  .top {
+    height: 64px;
+    gap: 8px;
+  }
+
+  .views {
+    top: 82px;
+  }
+
+  .drawer__eyebrow {
+    padding-top: 76px;
+  }
+
+  .foot {
+    height: 55px;
+  }
+}
+
+@media (max-width: 720px) {
+  .switch__btn b {
+    display: none;
+  }
+
+  .brand {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+}
+
+@media (max-width: 560px) {
+  .switch {
+    display: none;
+  }
+
+  .foot__hint {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .drawer--left {
+    width: 310px;
+  }
+
+  .pill {
+    padding: 0 11px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   13. Reduced motion: nothing slides, nothing fades, the pointer drift in
+   atlas.js is already gated on this same media query.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .scrim,
+  .row__chev,
+  .node,
+  .switch__btn,
+  .views__btn,
+  .pill,
+  .foot__btn,
+  .iconbtn,
+  .tools__btn,
+  .search {
+    transition: none !important;
+  }
+
+  .row[aria-expanded="true"] .row__chev {
+    transform: rotate(90deg);
+  }
+}

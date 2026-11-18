@@ -1,0 +1,1524 @@
+/* ---------- tokens: PPT「legal-investigation V1」米纸 + 金铜色系 ---------- */
+:root {
+  --ink: #1F2933;
+  --paper: #F6F2E9;
+  --muted: #6B7280;
+  --paper-deep: #EFEAD6;
+  --red: #C8102E;
+  --red-dark: #821718;
+  --line: #DDD5C0;
+  --rule: #E5E0D2;
+  --red-soft: rgba(200, 16, 46, 0.09);
+  --gold: #B08D4F;
+  --gold-2: #8A7B45;
+  --gold-soft: #C9BC8F;
+  --gold-pale: #F3ECDA;
+  --gold-hi: #E8C87E;
+  --surface: rgba(252, 250, 243, 0.72);
+  --surface-raised: #FCFAF3;
+  --surface-solid: #FCFAF3;
+  --shadow: rgba(31, 27, 24, 0.16);
+  /* v50 字体硬性规定·修订版（王律 2026-11-15）：拉丁/数字=Times New Roman 加粗；
+     中文（金/黑）=Noto Sans SC（思源黑体，王律按括号裁定）；加粗按内容/非内容分类在具体规则里；
+     王律单独指定的元素不套用本规则 */
+  --sans: "Times New Roman", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --serif: "Noto Serif SC", "Source Han Serif SC", serif;   /* v51：王律单点指示——王森/专业领域/手风琴标题等五个标题回归思源宋体（例外条款） */
+  --mono: "Times New Roman", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring: cubic-bezier(0.25, 1.35, 0.35, 1);
+  --shadow-nav: rgba(31, 41, 51, 0.05) 0px 0px 0px 1px;
+  --shadow-frame: rgba(31, 27, 24, 0.55) 0px 34px 65px -48px, rgba(255, 255, 255, 0.72) 0px 1px 0px 0px inset;
+  --shadow-drawer: rgba(31, 27, 24, 0.45) 0px 38px 82px -40px, rgba(31, 27, 24, 0.26) 0px 12px 30px -22px,
+    rgba(255, 255, 255, 0.95) 0px 1px 0px 0px inset;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+@supports not (overflow-x: clip) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* v65：整页定宽锁定（王律 2026-11-15：布局不随浏览器大小变化——全屏 2552×1274 即定稿几何）
+   桌面端（视口>760px）：页面画布恒 2552px、水平居中；窗口<2552 出横向滚动条（同传统定宽站），
+   窗口更大则两侧留米纸边（body 背景色上浮到画布，无白边）；ABCD 首屏几何任何窗口下与全屏逐像素一致。
+   手机端（≤760px）不走本块，维持原竖排布局。 */
+@media (min-width: 761px) {
+  html {
+    overflow-x: auto;   /* 覆盖上方 overflow:hidden——定宽后窗口小于 2552 时允许横向滚动 */
+    overflow-y: auto;   /* 矮窗口（<约1100 高）内容超出一屏时允许纵向滚动到底，不再静默裁切；全屏 1274 恰好一屏、不出滚动条 */
+  }
+
+  body#top:not(.is-modern) {
+    width: 2552px;      /* 定稿画布宽＝王律全屏视口宽；hero 内容区恒 = 2552-86-620 = 1846px，与 v64 全屏实测几何完全一致 */
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* headings follow the PPT: Noto Serif SC 900 */
+h1,
+.panel h2 {
+  font-family: var(--serif);
+  font-weight: 900;
+}
+
+/* the small gold mono label used all over the page (PPT .k) */
+.kicker {
+  font-family: var(--mono);
+  font-size: 13px;   /* v75：金色编号类 8→13（王律指定） */
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+  line-height: 1.4;
+}
+
+/* ---------- splash 半屏艺术封面 ---------- */
+.splash {
+  position: relative;
+  height: 60vh;
+  min-height: 340px;
+  overflow: hidden;
+  background: var(--paper-deep);
+}
+
+.splash__art {
+  position: absolute;
+  inset: 0;
+  /* v27：底缘 10vh 渐隐（从 50vh 起），消除与下半屏的截断感 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 60%, rgba(0,0,0,0.55) 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 60%, rgba(0,0,0,0.55) 80%, transparent 100%);
+}
+
+/* 缩放动画放在 img 上：外层 .splash__art 的 transform 留给滚动视差。
+   双图轮播：两图叠放，激活者 opacity 1，交叉淡化切换 */
+.splash__art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  animation: splashZoom 2.6s var(--ease) both;
+}
+
+.splash__art img.is-active {
+  opacity: 1;
+}
+
+@keyframes splashZoom {
+  from {
+    transform: scale(1.07);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* 顶部压暗给固定页眉让字；底部渐隐融进米纸 */
+.splash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(31, 41, 51, 0.22), rgba(31, 41, 51, 0) 44%);
+  pointer-events: none;
+}
+
+.splash::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 24vh;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(246, 242, 233, 0), var(--paper));
+  pointer-events: none;
+}
+
+
+
+.splash__brand {
+  position: absolute;
+  left: 34px;
+  top: 34px;
+  z-index: 2;
+}
+.splash__brandsub {
+  margin-top: 4px;
+}
+/* v26：开始沟通按钮置于下半屏右上角（上/右边距 34px 统一） */
+.hero .header-cta {
+  position: fixed;    /* v67：竖排胶囊栏占据右侧中部后，开始沟通按钮从 hero 右上改钉页面右上角（与左上词标 34/34 对称），解碰撞 */
+  right: 34px;
+  top: 34px;
+  z-index: 36;        /* 高于胶囊栏 z35 */
+}
+/* v24：开始沟通按钮置于封面图片左上角 */
+.splash .header-cta {
+  position: absolute;
+  top: 26px;
+  left: 86px;
+  z-index: 3;
+}
+
+.splash__brand .kicker {
+  font-size: 10px;
+  color: rgba(252, 250, 243, 0.95);
+  text-shadow: 0 1px 16px rgba(31, 41, 51, 0.4);
+}
+
+.splash__brandrule {
+  display: block;
+  width: 44px;
+  height: 2px;
+  margin-top: 10px;
+  background: var(--gold-hi);
+}
+
+/* ---------- fixed header ---------- */
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 78px;
+  padding: 0 34px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.wordmark__mono {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* 锦天城全标（菱形+ALLBRIGHT+锦天城），留 2px 内边距防顶边 */
+.wordmark__mono img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 2px;
+}
+
+.wordmark__lock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.wordmark__lock strong {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.wordmark__lock small {
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+
+.header-cta {
+  height: 40px;
+  padding: 0 22px;
+  border: 1px solid var(--gold-soft);
+  border-radius: 22px;
+  background: var(--surface);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold-2);
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+/* v73：开始沟通悬停红色效果删除（王律 2026-11-15）——悬停不再变色 */
+
+/* ---------- hero ---------- */
+.page {
+  min-height: 100vh;
+}
+
+.hero {
+  position: relative;
+  --portrait-h: 330px; /* v65：冻结为定稿值（原 clamp(250px, 40vh-130px, 330px) 随窗口高度缩放；全屏 1274 高时本就触及 330 上限，冻结后 A 区肖像与肩线对齐不再随窗口高度变化） */
+  --img-h: calc(var(--portrait-h) * 0.9);                /* v45：实际显示高度=参考值90%（王律 2026-11-15 指示） */
+  --band-w: 297px;   /* v54：基准带宽度上移至 .hero（网格模板与 A 列内容共用；原定义在 .hero__col--left 上，网格取不到） */
+  height: auto;              /* v39：内容决定高度，新增简介段落不裁切 */
+  min-height: max(40vh, 360px);
+  margin-top: -9vh;   /* v34：内容上移进封面渐隐区，避开底部导航（role 底 880→约 800） */
+  padding-bottom: 50px;   /* v80：B 区顶定位展开后底部超出原内容盒 ~42px，扩 50px 裁切边界；页面仍一屏（hero 底 1228<1274） */
+  overflow: hidden;
+}
+
+.hero__glyph {
+  position: absolute;
+  top: 40px;
+  left: 62px;
+  z-index: 0;
+  font-family: var(--serif);
+  font-size: 345.6px;
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: rgba(176, 141, 79, 0.09);
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: block;
+  /* v61：右内边距固定 620px（=抽屉宽度常量）；v65 定宽锁定后内容区恒 = 2552-706 = 1846px
+     （原"随视口伸缩"语义废止），B/C/D 1fr 恒 440.3px、三段间距恒 76px，D 右缘恒 1932（全屏时＝抽屉左缘） */
+  padding: 20px 620px 0 86px;
+}
+
+/* 网点艺术肖像：无框，完整半身，位于姓名右手的空白带 */
+.hero__art {
+  position: absolute;
+  top: 105px;
+  left: 560px;
+  z-index: 0;
+  width: clamp(300px, 25.5vw, 368px);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero__cols {
+  display: grid;
+  grid-template-columns: var(--band-w) repeat(3, minmax(120px, 1fr));
+  column-gap: 4.12%;  /* v64：A-B 间距 20→76（王律 2026-11-15：A-B 太窄）＝原 B-C/C-D 视觉节奏（20 网格距＋56 列内死区）；v65 定宽锁死后容器恒 1846px，此值恒＝76.1px 不再随窗口变化 */
+  align-items: start;
+}
+
+.hero__col {
+  position: relative;   /* v54：网格改为 A(297px)+B/C/D 三区，列自动依序落位（v40 的 span 2 遗留已删） */
+  z-index: 1;
+  min-width: 0;
+}
+
+/* v44：左列右侧无形对齐基准线——宽=ADDR 行自然右缘（296px，随文案长度校准）；
+   肖像右缘、律所行右缘、ADDR 右缘全部对齐此基准（王律 2026-11-14） */
+/* v54：--band-w 已上移至 .hero 定义（网格模板需要）；A 列内容宽度全部引用该变量 */
+
+/* v72（王律 2026-11-15）：三区整体移位——
+   ① 垂直：align-self:end 使 B/C/D 底边＝网格行底＝A 列底边＝律所地址行底（原肩线对齐 margin-top 废止）；
+   ② 水平：整组相对右移 80.5px——组宽 1473（3×440.33+2×76），居中后组心=视口心 1276（原组心 1195.5），
+      B 左缘 459→539.5、D 右缘 1932→2012.5（探入抽屉带 80.5px，抽屉打开会临时盖住 D 右端）；
+   模块宽 440.33 与间距 76 不变，A 列分毫未动。数值依赖 v65 定宽 2552 画布；≤760 手机块已复位。 */
+.hero__col--zone {
+  align-self: end;
+  margin-top: 0;
+  left: 80.5px;
+}
+
+/* v73：肖像(A)与个人介绍(B)之间的竖线——挂在 B 列左缘外侧 gap 中点（-78.25px），top/bottom 0 使高度恒＝B 板块高度 */
+.hero__col--left + .hero__col--zone::before {
+  content: "";
+  position: absolute;
+  left: -78.25px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+}
+
+/* v80：B 区改顶定位（王律：展开以执业律师上横线为基准向下，不以底边为基准）——
+   align-self:start 落行顶 + relative top 245.6（=915.3-669.7）纯渲染位移（不撑大行高，C/D 不受拖动）；
+   v78 的 4.3px 补偿废止（三区手风琴顶线随之对齐），展开/收起时 B 底边随内容伸缩（C/D 底对齐不受影响） */
+.hero__col--left + .hero__col--zone {
+  align-self: start;
+  top: 245.6px;
+}
+
+/* v81：B 区正文行距 1.85→1.65＋撑高 15→8——王律精简后仍超底线 18.8px，此处恰好补齐（文字未动，C/D 不受影响） */
+.hero__col--left + .hero__col--zone .acc__body > p {
+  line-height: 1.65;
+}
+
+.hero__col--left + .hero__col--zone .acc__body > p::after {
+  height: 8px;
+}
+
+/* v64：三区手风琴取消 440 上限、撑满列宽——吸收原列内右侧约 56px 死区（此前 B-C/C-D 视觉间距 76px 的真实来源），
+   使 column-gap 成为唯一间距变量：A-B = B-C = C-D 等距，三区模块随列等宽、右缘齐平内容区边界（抽屉左缘） */
+.hero__col--zone .identities {
+  max-width: none;
+}
+
+/* v52：B/C/D 窄列模块——标题与英文标签上下堆叠（窄列放不下横排） */
+.hero__col--zone .hero__namerow {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* v45：书脊居左、肖像缩至90%后右对齐到基准带右缘（王律 2026-11-15：还是靠右对齐） */
+.portrait-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: var(--band-w);
+  gap: 26px;
+}
+
+.portrait-spine {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;   /* v42：不贴底线，留间隙（王律指示） */
+}
+
+.portrait-spine span {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);   /* v40：旋转 180°，自下而上阅读（王律 2026-11-14） */
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--gold-2);   /* 与 WANG SEN · LAWYER 同色（王律 2026-11-14） */
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.portrait-img {
+  display: block;
+  height: var(--img-h);   /* v45：90% 缩放（王律指示） */
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* v44：左列底部两条横线延伸到右侧基准线（不再以书脊+肖像宽公式计算，王律 2026-11-14） */
+.hero__col--left .col-rule {
+  width: var(--band-w);
+}
+
+/* v37：肖像底部准线——左列此横线与肖像底边齐平（王律 2026-11-14）；双类选择器压过下方 .col-rule 的 margin-top */
+.col-rule.col-rule--flush {
+  margin-top: 0;
+}
+
+.col-rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+  margin: 10px 0 8px;
+}
+
+.hero__eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  margin-bottom: 12px;
+}
+
+.hero h1 {
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  margin-bottom: 0;
+}
+
+/* the mono letterspaced line under the name (miaoqichuan pattern) */
+.hero__en {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+/* v24：名字行并排（缪奇川站式样：大字 + 右侧基线对齐英文小字） */
+.hero__namerow {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+.hero__namerow .hero__en {
+  margin-bottom: 0;
+}
+/* v24：锦天城 LOGO + 王森律师/英文 水平对齐行 */
+.hero__brandrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.brandrow__logo {
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  object-fit: contain;
+  padding: 2px;
+}
+.brandrow__lock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+.brandrow__lock strong {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.brandrow__lock small {
+  font-family: var(--mono);
+  font-size: 11px;   /* v75：与上行等号（抽屉顶栏两行统一 11px） */
+  position: relative;
+  top: -2px;         /* v77：ATTORNEY AT LAW 向上夹紧 2px（仅影响抽屉顶栏小字） */
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+
+/* the PPT 88×4 gold bar anchor */
+.hero__rule {
+  display: block;
+  width: 88px;
+  height: 4px;
+  background: var(--gold);
+  margin: 14px 0 4px;
+}
+
+/* v41：姓名区左对齐（王律 2026-11-14） */
+.hero__col--left .hero__namerow {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* v48：姓名区副行「金融律师 · 法律AI · 量化投资」（王律 2026-11-15）——
+   中文创实义内容，字距归零与律所行等全站中文行一致（.hero__en 类遗留的 0.3em 拉丁装饰字距不再适用） */
+.hero__col--left .hero__namerow .hero__en {
+  letter-spacing: normal;
+}
+
+/* v44：律所行三段 space-between 撑满基准带，右端落在基准线上（王律指示） */
+.hero__role {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: var(--band-w);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0;
+}
+
+/* v42：联系 CONTACT 标签行＋TEL/MAIL/ADDR 联系块（王律 2026-11-14；限宽避开底部导航胶囊） */
+.hero__tagline {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--gold-2);
+  text-align: left;
+  max-width: var(--band-w);   /* v53：盒子对齐基准带 297（清 312 遗留） */
+  line-height: 1.5;           /* v53：与联系块行距一致（原继承 1.7） */
+  margin-bottom: 9px;         /* v53：与联系块行间距 9px 统一（原 12px） */
+}
+
+.hero__tagline .tagline-en {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+.hero__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: var(--band-w);   /* v44：右缘=基准线（最长行 ADDR 自然定宽） */
+}
+
+.contact__row {
+  display: flex;
+  align-items: baseline;
+}
+
+.contact__k {
+  flex-shrink: 0;
+  width: 48px;            /* 标签列定宽：TEL/MAIL/ADDR 的值起始字上下对齐（王律指示） */
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--gold-2);
+}
+
+.contact__v {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  white-space: nowrap;   /* v45：ADDR 一行显示不折行（王律指示） */
+  flex-shrink: 0;
+}
+
+/* v51：电话/邮箱值加大一号 13→14px（王律 2026-11-15 单点指示，地址行维持 13px） */
+.contact__v--lg {
+  font-size: 14px;
+}
+
+/* v39：中列变窄后专业领域行防换行 */
+/* v52：PROFESSIONAL AREAS 防溢出规则同步覆盖 B 区副本（右列） */
+.hero__col--zone .hero__en {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+}
+
+/* v54：三区标题窄列适配（基准带宽 297px，区宽≈130px，40px 标题会折行故缩至 30px 单行） */
+.hero .zone-title {
+  font-size: 30px;
+}
+
+.hero__areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 14px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.hero__areas span {
+  position: relative;
+}
+
+.hero__areas span + span::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+/* ---------- identities accordion（三重身份手风琴，缪奇川站式样） ---------- */
+.identities {
+  margin-top: 10px;
+  max-width: 440px;
+}
+
+.block__label {
+  margin-bottom: 6px;
+}
+
+.acc__item {
+  border-bottom: 1px solid var(--line);
+}
+
+.acc__item:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.acc__title {
+  margin: 0;
+}
+
+.acc__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 2px;
+  text-align: left;
+}
+
+.acc__head span {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  transition: color 0.22s var(--ease);
+}
+
+.acc__head:hover span,
+.acc__item.is-open .acc__head span {
+  color: var(--gold-2);
+}
+
+/* the +/− marker, drawn in gold */
+.acc__head i {
+  position: relative;
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+.acc__head i::before,
+.acc__head i::after {
+  content: "";
+  position: absolute;
+  background: var(--gold);
+  transition: transform 0.3s var(--ease);
+}
+
+.acc__head i::before {
+  left: 0;
+  right: 0;
+  top: 5px;
+  height: 1.5px;
+}
+
+.acc__head i::after {
+  top: 0;
+  bottom: 0;
+  left: 5px;
+  width: 1.5px;
+}
+
+.acc__item.is-open .acc__head i::after {
+  transform: scaleY(0);
+}
+
+.acc__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 0.4s var(--ease), visibility 0.4s var(--ease);
+}
+
+.acc__item.is-open .acc__body {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+.acc__body > p {
+  overflow: hidden;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+/* 底部留白用 ::after 撑出：padding 会泄漏进 0fr 轨道，导致收起时露半行字 */
+.acc__body > p::after {
+  content: "";
+  display: block;
+  height: 15px;
+}
+
+/* ---------- portrait chips（抽屉「关于我」仍在用） ---------- */
+.portrait__chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chip {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.chip small {
+  display: block;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.chip strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #374151;
+}
+
+/* ---------- floating pill nav ---------- */
+/* v69（王律 2026-11-15，参考某所官网封面头部）：改纯文字导航——上半屏顶部居中、
+   白色思源宋体 14px、去胶囊框/阴影/毛玻璃、去图标；旧竖排胶囊样式见 backups\current */
+.pill-nav {
+  position: fixed;
+  left: 50%;
+  top: 34px;          /* 与左上词标（top 34）顶对齐成报头行 */
+  z-index: 35;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 44px;          /* 参考图组间距观感 */
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: translateX(-50%);
+}
+
+.pill-nav__item {
+  padding: 0;
+  font-family: "Microsoft JhengHei", "Microsoft YaHei", sans-serif;   /* v78：王律改正黑体（v69 思源宋体废止；加粗 700 保留） */
+  font-size: 17px;             /* v71：再加大——参考图实测墨迹高 15px≈17px 字号；参考图字体经比对＝思源宋体粗字重，与本导航同族（Noto Serif SC），无需换族 */
+  font-weight: 700;            /* v70：王律指示加粗（原 500 偏细） */
+  line-height: 1;
+  letter-spacing: 0.24em;      /* 参考图宽字距观感；末字会带 0.24em 尾隙，居中偏差可忽略 */
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.22s var(--ease);
+}
+
+.pill-nav__item svg {          /* v69：图标已删，规则留作恢复图标时使用 */
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pill-nav__item:hover,
+.pill-nav__item.is-open {
+  color: var(--gold-hi);       /* v69：白字画布上悬停转金（原红字+红底适配胶囊底，油画上不可读） */
+  background: none;
+}
+
+/* ---------- drawer ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(31, 41, 51, 0.3);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.35s var(--ease);
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.overlay.is-open {
+  opacity: 1;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 100%);
+  height: 100%;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-drawer);
+  transform: translateX(100%);
+  transition: transform 0.45s var(--ease);
+  overflow: hidden;
+}
+
+.overlay.is-open .drawer {
+  transform: translateX(0);
+}
+
+.drawer:focus {
+  outline: none;
+}
+
+.drawer__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* v73：抽屉顶栏第一行——锦天城 LOGO＋文字（沿用下架 brandrow 组合样式，尺寸适配顶栏） */
+.drawer__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drawer__brand .brandrow__logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.drawer__brand .brandrow__lock strong {
+  font-size: 11px;
+  color: var(--ink);      /* v76：WANG SEN 转黑（下行保持金色） */
+  position: relative;
+  top: 2px;               /* v77：基准回归 LOGO 上下沿 18/52——WANG SEN 向下夹紧 2px */
+}
+
+.drawer__brand .brandrow__lock {
+  height: 34px;               /* v77：锁高回到=LOGO 高（34），对齐基准=LOGO 上下沿 18/52 */
+  justify-content: space-between;
+  gap: 0;
+}
+
+.drawer__close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1;
+  color: var(--muted);
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.drawer__close:hover {
+  color: var(--gold-2);       /* v73：抽屉红字改金 */
+  border-color: var(--gold-soft);
+}
+
+.drawer__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 34px 28px 56px;
+  overscroll-behavior: contain;
+}
+
+.panel {
+  display: none;
+  max-width: 620px;
+}
+
+.panel.is-active {
+  display: block;
+}
+
+.panel h2 {
+  margin: 12px 0 16px;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.28;
+  letter-spacing: 0.01em;
+}
+
+.panel__intro {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #6B7280;
+}
+
+.panel h3 {
+  margin: 28px 0 12px;
+  font-family: var(--mono);
+  font-size: 14px;   /* v87：小节标签 13→14（合作方向/履历/代表荣誉/Practice Areas，王律：再调大一号） */
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tags span {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-solid);
+  font-size: 12.5px;
+  color: #374151;
+}
+
+.list-roles li {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  color: #4B5563;
+}
+
+.list-roles li b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* v85：履历日期定宽列——公司名首字（云/兴/上）纵向对齐 */
+.list-roles .r-date {
+  display: inline-block;
+  width: 113px;
+}
+
+.awards {
+  display: grid;
+  gap: 10px;
+}
+
+.award {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface-solid);
+}
+
+.award small {
+  display: block;
+  font-family: var(--sans);
+  font-size: 12px;   /* v76：特等奖标签加大一号 */
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-2);   /* v73：抽屉红字统一改金（＝网页金色字体用色，王律 2026-11-15） */
+}
+
+.award strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.list-history li {
+  display: flex;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  color: #4B5563;
+}
+
+.list-history time {
+  flex: none;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--gold-2);   /* v73：抽屉红字改金 */
+  padding-top: 3px;
+}
+
+.card-stack {
+  display: grid;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.card {
+  display: block;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface-solid);
+  text-decoration: none;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.card:hover {
+  border-color: var(--gold-soft);
+  background: var(--gold-pale);
+}
+
+.card__meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-2);   /* v73：抽屉红字统一改金（＝网页金色字体用色，王律 2026-11-15） */
+}
+
+.card strong {
+  display: block;
+  margin: 6px 0 4px;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.card p {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.row-stack {
+  display: grid;
+  margin-top: 28px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 66px 1fr 18px;
+  align-items: baseline;
+  gap: 10px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+
+.row time {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--gold-2);   /* v73：抽屉红字统一改金（＝网页金色字体用色，王律 2026-11-15） */
+}
+
+.row strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.row i {
+  font-style: normal;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.row--pending i {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.contact-rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: 74px 1fr 16px;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface-solid);
+  text-decoration: none;
+}
+
+.contact-row small {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-2);   /* v73：抽屉红字统一改金（＝网页金色字体用色，王律 2026-11-15） */
+}
+
+.contact-row strong {
+  font-size: 14px;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.contact-row i {
+  font-style: normal;
+  color: var(--muted);
+  text-align: right;
+}
+
+.qr-row {
+  display: flex;
+  justify-content: center;   /* v75：二维码框在面板底部左右居中 */
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.qr {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: 156px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface-raised);
+}
+
+.qr img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.qr span {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.big-cta {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--surface-raised);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+}
+
+.big-cta:hover {
+  background: var(--red-dark);
+}
+
+.service-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.service {
+  display: grid;
+  grid-template-columns: 26px 120px 1fr;
+  align-items: baseline;
+  gap: 10px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface-solid);
+}
+
+.service b {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold-2);   /* v73：抽屉红字统一改金（＝网页金色字体用色，王律 2026-11-15） */
+}
+
+.service strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.service span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.follow {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 18px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface-solid);
+}
+
+.follow small {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-2);   /* v73：抽屉红字统一改金（＝网页金色字体用色，王律 2026-11-15） */
+}
+
+.follow strong {
+  display: block;
+  margin: 4px 0 6px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.follow p {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.follow img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  background: var(--surface-raised);
+}
+
+.faq {
+  margin-top: 12px;
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+}
+
+.faq summary {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary b {
+  font-family: var(--sans);
+  font-size: 12px;          /* v76：合作方向区块再上调一号 */
+  font-weight: 600;
+  color: var(--gold-2);   /* v73：抽屉红字统一改金（＝网页金色字体用色，王律 2026-11-15） */
+}
+
+.faq summary span {
+  flex: 1;
+  font-family: var(--serif);   /* v86：合作方向五项标题思源宋体加粗（与主页折叠栏同族） */
+  font-size: 14px;             /* v88：17→14（王律：有点大了） */
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.faq summary i {
+  font-style: normal;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.faq p {
+  margin-top: 8px;
+  padding-left: 24px;
+  font-size: 14px;          /* v76：13→14 */
+  line-height: 1.8;
+  color: #6B7280;
+}
+
+/* ---------- responsive ---------- */
+/* v65：原 ≤1040px 流式适配块（hero__inner 压缩内边距 / hero__col max-500 / h1 62px / hero__art 26vw / splash__brand left46）已整块删除——
+   定宽锁定后 761-1040 窗口与桌面完全同几何（横向滚动查看），这些规则若保留会在小窗口改写锁定布局；
+   ≤760px 手机竖排块保留 */
+
+@media (max-width: 760px) {
+  body {
+    font-size: 13px;
+  }
+
+  .site-header {
+    height: 65px;
+    padding: 0 17px;
+  }
+
+  .wordmark__lock small {
+    display: none;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-bottom: 0;
+  }
+
+  .hero__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 92px 18px 0 18px;
+  }
+
+  .hero__col,
+  .portrait {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .hero__col--zone {
+    align-self: auto;   /* v72 复位：手机纵向堆叠，不参与桌面底对齐/右移 */
+    left: 0;
+  }
+
+  .hero__col--left + .hero__col--zone::before {
+    display: none;      /* v73：手机堆叠布局下不显示 A/B 间竖线 */
+  }
+
+  .hero h1,
+  .hero__role,
+  .hero__areas,
+  .acc__head span,
+  .acc__body p,
+  .panel__intro,
+  .tags {
+    overflow-wrap: anywhere;
+  }
+
+  .hero h1 {
+    font-size: 66px;
+    margin-bottom: 10px;
+  }
+
+  .hero__eyebrow {
+    font-size: 9px;
+    margin-bottom: 10px;
+  }
+
+  .hero__role,
+  .hero__areas {
+    font-size: 12px;
+  }
+
+  .identities {
+    margin-top: 18px;
+  }
+
+  .acc__head {
+    padding: 11px 2px;
+  }
+
+  .acc__head span {
+    font-size: 15.5px;
+  }
+
+  .hero__art {
+    position: static;
+    display: block;
+    width: 74%;
+    max-width: 360px;
+    margin: 28px 0 0 auto;
+  }
+
+  .splash {
+    height: 46vh;
+  }
+
+  .splash__brand {
+    left: 18px;
+    bottom: 70px;
+  }
+
+  .pill-nav {
+    top: auto;              /* v69：手机无封面白字场景——底部恢复浅底胶囊、墨色文字保可读 */
+    right: auto;
+    left: 50%;
+    bottom: 12px;
+    width: calc(100% - 20px);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    transform: translateX(-50%);
+    padding: 9px 10px;
+    background: rgba(252, 251, 247, 0.92);
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(31, 41, 51, 0.10), 0 2px 8px rgba(31, 41, 51, 0.05);
+  }
+
+  .pill-nav__item {
+    flex: 1 1 0;
+    padding: 2px 0;
+    text-align: center;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.06em;   /* 手机窄屏收字距防换行 */
+    color: var(--ink);
+  }
+
+  .pill-nav__item.is-open {
+    color: var(--red);        /* 手机浅底上金色对比不足，激活项用红 */
+  }
+
+  .pill-nav__item svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .drawer {
+    width: 100%;
+  }
+
+  .drawer__bar {
+    padding: 14px 18px;
+  }
+
+  .drawer__body {
+    padding: 26px 18px 48px;
+  }
+
+  .panel h2 {
+    font-size: 26px;
+  }
+
+  .service {
+    grid-template-columns: 22px 1fr;
+    gap: 4px 10px;
+  }
+
+  .service span {
+    grid-column: 2;
+  }
+
+  .follow {
+    grid-template-columns: 1fr 96px;
+  }
+
+  .contact-row {
+    grid-template-columns: 62px 1fr 14px;
+    padding: 11px 12px;
+  }
+}
+
+
+/* ═══ 编辑落码区（AI 按王律编辑模式导出逐条落码，勿手删） ═══ */
+
+.hero__role { color: #111827; }   /* 编辑落码 v2：王律改黑色 */

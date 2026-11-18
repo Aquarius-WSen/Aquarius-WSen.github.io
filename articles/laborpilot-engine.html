@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>长文占位：一套笔记系统的搭建过程</title>
+<meta name="description" content="一篇关于把零散条文整理成可用流程的长文占位版：结构、取舍、失败之处，以及它替人省下了什么。">
+<meta name="theme-color" content="#f6f1e8">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<style>
+:root{
+  --max:680px;
+  --panel:#efebe3;
+  --line:#e2d8c6;
+  --warm:#8a8176;
+  --strong:#1c1814;
+  --mute:#8a8176;
+  --gold:#9a7430;
+  --sheet:#fffcf8;
+}
+*{box-sizing:border-box}img,svg,video{max-width:100%}
+html,body{overflow-x:clip}
+@supports not (overflow-x:clip){html,body{overflow-x:hidden}}
+body{margin:0;background:#f6f1e8;color:#2f2a25;
+  font:15px/1.7 "PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;}
+h1,h2{font-family:"Noto Serif SC","Songti SC",STSong,serif}
+a{color:inherit}
+ul,ol{margin:0;padding:0;list-style:none}
+.page{max-width:calc(var(--max) + 32px);margin:0 auto;padding:0 16px}
+.sheet{background:var(--sheet)}
+.pad{padding:32px 24px 0}
+.wordmark{margin:0 0 28px;font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--mute);overflow-wrap:anywhere}
+.back-link{margin:0 0 12px;font-size:13px}
+.back-link a{color:var(--gold);text-decoration:none}
+h1{margin:0;max-width:680px;font-size:28px;line-height:1.32;font-weight:700;
+  letter-spacing:-.01em;color:var(--strong);overflow-wrap:anywhere}
+.sub{margin:14px 0 0;max-width:680px;font-size:15.64px;line-height:1.7;color:var(--gold)}
+.meta{margin:10px 0 0;max-width:680px;font-size:13px;color:var(--mute);overflow-wrap:anywhere}
+.origin-link{margin:6px 0 0;max-width:680px;font-size:13px}
+.origin-link a{color:var(--mute);text-decoration:none;border-bottom:1px solid var(--line)}
+.cover{margin:0 -24px;aspect-ratio:1536/864;
+  background:
+    radial-gradient(120% 90% at 18% 8%,rgba(255,252,248,.92),transparent 60%),
+    linear-gradient(160deg,#e6dcc7 0%,#d9cdb4 46%,#c9bb9f 100%)}
+.lede{margin:30px 0 0;max-width:680px;font-size:18px;line-height:1.8;color:var(--strong)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
+  margin:28px 0 0;max-width:680px;background:var(--line)}
+.stats li{background:var(--sheet);padding:12px 10px;min-width:0;overflow-wrap:anywhere}
+.stats b{display:block;font-family:"Noto Serif SC","Songti SC",STSong,serif;
+  font-size:22px;line-height:1.2;font-weight:700;color:var(--strong)}
+.stats span{display:block;margin-top:4px;font-size:12px;line-height:1.5;color:var(--mute)}
+.eyebrow{margin:48px 0 0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.body{max-width:680px;padding:0 0 8px;margin:0 auto}
+.body p{margin:22px 0 0;font-size:17px;line-height:1.9}
+.body h2{margin:52px 0 0;font-size:22px;line-height:1.45;font-weight:700;color:var(--strong)}
+.body ul,.body ol{margin:18px 0 0;padding-left:22px;list-style:revert}
+.body li{margin:6.8px 0 0;font-size:17px;line-height:1.9;overflow-wrap:anywhere}
+.body blockquote{margin:26px 0 0;padding:0 0 0 18px;border-left:2px solid var(--line);
+  color:var(--warm);font-size:17px;line-height:1.9}
+.body code{padding:1px 5px;background:var(--panel);
+  font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--strong)}
+.author{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
+.author__label{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.author__row{display:flex;gap:16px;align-items:flex-start;margin:12px 0 0}
+.author__photo{flex:0 0 88px;width:88px;height:88px;border-radius:50%;
+  background:radial-gradient(circle at 50% 34%,#f3eee4,#e8dcc8)}
+.author__text{min-width:0}.author__text p{margin:0}
+.author__name{font-family:"Noto Serif SC","Songti SC",STSong,serif;
+  font-size:20px;line-height:1.4;font-weight:700;color:var(--strong)}
+.author__text .author__role{margin:2px 0 0;font-size:13px;color:var(--warm)}
+.author__text .author__bio{margin:6px 0 0;font-size:14px;line-height:1.8;color:var(--warm)}
+.author__site{margin:8px 0 0;font-size:13px}
+.author__site a{color:var(--gold);text-decoration:none}
+.colophon{display:flex;justify-content:space-between;align-items:flex-start;gap:18.7px;
+  margin:0;padding:22px 0 8px;border-top:1px solid var(--line);
+  font-size:13px;line-height:1.8;color:var(--mute)}
+.colophon__text{min-width:0;overflow-wrap:anywhere}.colophon__text p{margin:0}
+.colophon__links{display:flex;flex-wrap:wrap;gap:6px 16px;margin:8px 0 0;font-size:13px}
+.colophon__links a{color:var(--mute);text-decoration:none;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.back-link a:hover,.author__site a:hover,.colophon__links a:hover{color:#5c4a2e}
+.colophon__seal{flex:0 0 108px;width:108px;height:108px;order:2;margin-left:auto;border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%,#f3eee4 0 38%,rgba(154,116,48,.5) 39% 41%,transparent 42%),
+    radial-gradient(circle at 50% 50%,#f3eee4,#e6dcc7 70%,#d9cdb4)}
+@media (max-width:559px){.colophon__seal{flex:0 1 72px;width:72px;height:72px}.author__photo{flex:0 1 64px;width:64px;height:64px}}
+@media (min-width:560px){
+  .pad{padding:32px 40px 0}
+  .cover{margin:0 -40px}
+  h1{font-size:28px}
+}
+@media (min-width:720px){
+  .page{padding:0}
+  .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:0.001ms !important;transition-duration:0.001ms !important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<article class="sheet">
+<div class="pad">
+<p class="wordmark">Notes · 笔记系统</p>
+<p class="back-link"><a href="../modern/">← 返回主页</a></p>
+<h1>我把散落的条文，整理成了一套可以反复用的笔记系统</h1>
+<p class="sub">从一堆互不相连的材料，到一条能顺着走下去的路——中间要做的，其实不是技术活。</p>
+<p class="meta">执业律师 · 民商事争议解决 · 温州</p>
+<p class="origin-link"><a href="#">查看公众号原文 ↗</a></p>
+<div class="cover" role="img" aria-label="文章封面：占位图"></div>
+<p class="lede">办案几年，最花时间的往往不是判断，而是找。同一类问题，第三次遇到时仍要重新翻一遍材料。于是我把这件事拆开重做了一遍。下面是它的来路：为什么这么搭，哪里会出错，以及它究竟替我省下了什么。</p>
+<ul class="stats">
+  <li><b>01</b><span>总控</span></li>
+  <li><b>09</b><span>专项工具</span></li>
+  <li><b>96</b><span>张争点卡</span></li>
+  <li><b>05</b><span>个主题群</span></li>
+  <li><b>109</b><span>条候选关联</span></li>
+  <li><b>02</b><span>年整理</span></li>
+</ul>
+<div class="body">
+
+<p class="eyebrow">Notes · 从零到一</p>
+
+<h2>01 难点从来不只是"条文多"</h2>
+
+<p>如果问题只是条文多，那么一个搜索框就够了。真正麻烦的是：同一个问题，散落在几部不同的规定里，彼此还互相限定。你搜到的那一条，通常不是最后决定结果的那一条。</p>
+
+<p>更麻烦的是顺序。材料先看哪一份、后看哪一份，会影响你得出什么结论。顺序对了，很多争论根本不发生；顺序错了，再全的材料也只是堆在那里。</p>
+
+<p>所以这套东西一开始就不是按"查"来设计的，而是按"走"来设计的。它假设使用者已经知道要问什么，缺的是把已知的东西排成一个可以核对的次序。</p>
+
+<h2>02 它不是查询器，而是一条流程</h2>
+
+<p>一个查询器给你一条答案；一条流程给你下一步该做什么。这两件事在用法上差得很远，前者省时间，后者省遗漏。</p>
+
+<p>具体到实现上，每一次使用都从"手上有什么"开始，而不是从"你想问什么"开始。材料清单先摆出来，缺的那几项单独标出来，然后才进入判断。</p>
+
+<p>这个顺序看起来笨，但它是唯一能让人诚实地面对"证据不足"的顺序。先给结论，人就会去找支持结论的材料；先给材料，人才能发现结论还不成立。</p>
+
+<h2>03 1 个总控，加上 9 个专业 Skill</h2>
+
+<p>结构上分两层：一个总控负责判断当前在哪一步、下一步该起哪一个工具；九个专项工具各自只做一件小事，做完就交回总控。</p>
+
+<p>之所以拆得这么细，是因为越大的工具越难验证。一件小事对不对，看两三个例子就能确认；一整条流水线对不对，往往要等它错了一次才知道。</p>
+
+<ul>
+  <li>总控：只负责排序与分派，不自己下结论。</li>
+  <li>专项工具：输入输出都定死，坏了只影响自己那一步。</li>
+  <li>记录层：每一步的输入和输出都留档，便于回头核对。</li>
+</ul>
+
+<h2>04 从散落的文献，到可以翻的争点卡</h2>
+
+<p>整理的第一步不是写，而是删。同一条规则在不同文件里重复出现时，只保留表述最完整的那一处，其余的记成指向。</p>
+
+<p>第二步是把规则改写成"争点"，也就是一个可以用是或否回答的问题。一条不能变成问题的规则，通常在实务里用不上。</p>
+
+<p>最后一步才是编号和归类。编号不是为了好看，是为了让每一张卡都能被引用，也让重复的卡一眼看得出来。</p>
+
+<blockquote>整理的价值不在收得多，而在收完之后，能对着一个问题说清楚"还差什么"。</blockquote>
+
+<h2>05 更要紧的，是它什么时候停下</h2>
+
+<p>使用者最常担心的是它乱写。真正需要设计的，恰恰是它什么时候不说话。</p>
+
+<p>所以有三条硬性规则：材料不足时只列缺口，不给结论；规则之间有冲突时并列，不替人做选择；超出范围时直接说明，不用相邻领域的规则凑答案。</p>
+
+<p>这三条会让它显得比同类工具"笨"。但一个在不确定时肯停下的工具，比一个永远给出完整答案的工具更有用。</p>
+
+<h2>06 一个案件进来之后，会发生什么</h2>
+
+<p>从材料进门到清单出门，中间是固定的十步。每一步都有明确的输入和输出，任何一步缺料就停在原地。</p>
+
+<ol>
+  <li>确认争议类型与请求的方向。</li>
+  <li>列出该类型需要的基础材料。</li>
+  <li>核对现有材料，标出缺口。</li>
+  <li>按时间顺序重排事实。</li>
+  <li>把事实对应到具体的争点卡。</li>
+  <li>检查规则之间是否存在冲突。</li>
+  <li>列出需要补充的证据。</li>
+  <li>给出可能的处理路径与各自的代价。</li>
+  <li>输出一份可核对的清单。</li>
+  <li>记录这一次的判断依据，留待复查。</li>
+</ol>
+
+<p>输出是一份清单，不是一份意见。清单可以逐条打勾，意见只能点头或摇头。</p>
+
+<h2>07 离线能力与外部工具，各自负责什么</h2>
+
+<p>整套东西可以在没有网络的情况下跑完主流程。需要联网的部分被单独隔开，只在明确的那几步里被调用。</p>
+
+<ul>
+  <li>OCR：把扫描件转成可以检索的文字，只在有图片材料时启用。</li>
+  <li>docx：需要交付成文档时，才把清单导出成文件。</li>
+  <li>Git：所有改动留痕，随时可以回到上一版。</li>
+  <li>HTTPS：涉及外部检索时，只走加密通道。</li>
+  <li>plugin：外部工具以插件形式接入，坏一个不影响整体。</li>
+  <li>Agent：需要多步操作时才起一个去跑，跑完即止，不留后台任务。</li>
+</ul>
+
+<p>现在这一版够用，也还粗糙。下一步很清楚：把冲突检测做细一点，把证据缺口的提示写得更具体，让"还差什么"这句话可以直接读出来。</p>
+
+<h2>08 哪些人适合用这一套</h2>
+
+<p>这套东西不是给所有人准备的。如果你的问题是"这件事最后能赔多少"，它给不了可以直接拿去用的数字；它给的是算这个数字需要的材料清单和过程。这两者的期待差得很远，说清楚比说好听重要。</p>
+
+<p>比较合适的大概是这样几类人：</p>
+
+<ul>
+  <li>刚进入这一领域的执业者，需要一个不漏步骤的骨架。</li>
+  <li>企业内的法务与人力岗位，需要在事情变复杂之前先把风险点看一遍。</li>
+  <li>调解组织与法律援助岗位，需要快速把一堆材料整理成形。</li>
+  <li>愿意自己动手梳理材料的当事人，需要知道"还缺哪一份证据"。</li>
+</ul>
+
+<p>不太合适的，是希望一句话就得到结论的人。工具可以把路铺平，但路上那几步还是得自己走。</p>
+
+<h2>09 安装与使用</h2>
+
+<p>安装本身没有什么门槛：把文件放到约定的目录，用一个命令启动即可。真正的成本不在安装，而在前期的材料整理——那一步没法省。</p>
+
+<p>使用时的建议是：一次只处理一个争议类型；材料不全时先补齐再往下走；每次结束都写一行记录，说明这一次为什么这样判断。</p>
+
+<p>如果中途觉得麻烦，多半不是工具的问题，而是材料本身还没理清。这时候停下来整理材料，比硬着头皮往下走更省时间。</p>
+
+<h2>10 写在最后</h2>
+
+<p>写这套东西的时间里，最大的收获不是多了一个工具，而是把自己的办案顺序重新想清楚了一遍。顺序一旦外化成文件，就再也糊弄不过去。</p>
+
+<p>它会继续改。改的方向不是让它更聪明，而是让它更诚实：知道自己什么时候不知道，并把这一点如实说出来。</p>
+
+</div>
+<section class="author">
+  <p class="author__label">作者介绍</p>
+  <div class="author__row">
+    <div class="author__photo" role="img" aria-label="作者头像占位图"></div>
+    <div class="author__text">
+      <p class="author__name">王森</p>
+      <p class="author__role">执业律师 · 温州</p>
+      <p class="author__bio">占位介绍：一段关于执业方向与写作习惯的简短说明。</p>
+      <p class="author__site"><a href="../modern/">个人主页</a></p>
+    </div>
+  </div>
+</section>
+<footer class="colophon" role="contentinfo">
+  <div class="colophon__text">
+    <p>Case Notes｜一套劳动争议笔记系统</p>
+    <p>以通用规则为基础，另附地方口径的说明</p>
+    <ul class="colophon__links">
+      <li><a href="#">GitHub</a></li>
+      <li><a href="#">SkillHub</a></li>
+      <li><a href="#">公众号：占位名称</a></li>
+    </ul>
+  </div>
+  <div class="colophon__seal" role="img" aria-label="印章占位图"></div>
+</footer>
+</div>
+</article>
+</div>
+</body>
+</html>
