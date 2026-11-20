@@ -404,7 +404,7 @@ const INFLOW = { STREAMS: 26, PER: 34, R0: 150, R1: 880 };   // 已回退：第�
  * 半径 400-1800 参差（不再正五边形）。未探索：仅 3D 云气+标注，无节点、无目录项、无标签页 */
 const CLUSTERS = [
   { id: 'A1', name: '公开发行公司债券',   parent: '证券及资本市场', star: '天枢', color: 0x8ea2ff, adj: 0x7fb8e8, position: [ -378,  90,  397] },
-  { id: 'A2', name: '重大资产重组',       parent: '证券及资本市场', star: '天璇', color: 0x7fb8e8, adj: 0xffcf8a, position: [ -401, -50,  -74] },
+  { id: 'A2', name: '重大资产购买',       parent: '证券及资本市场', star: '天璇', color: 0x7fb8e8, adj: 0xffcf8a, position: [ -401, -50,  -74] },
   { id: 'B1', name: '私募投资基金',       parent: '银行与金融',     star: '天玑', color: 0xffcf8a, adj: 0xe8a87f, position: [  252,  70, -309] },
   { id: 'B2', name: '债券与资产证券化',   parent: '银行与金融',     star: '天权', color: 0xe8a87f, adj: 0xff9bb0, position: [  525, -70,  -17] },
   { id: 'C1', name: '兼并收购',           parent: '公司与并购',     star: '玉衡', color: 0xff9bb0, adj: 0x8ea2ff, position: [ 1006,  60,  174] },
